@@ -1,0 +1,2 @@
+extension DynamicParsingExtension on dynamic {
+}
