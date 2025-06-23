@@ -2,23 +2,19 @@ import 'dart:convert';
 
 List<T>? tryParseList<T>(
   dynamic value, {
-  T Function(dynamic)? itemConverter,
   List<T> Function()? orElse,
+  T Function(dynamic)? itemConverter,
   bool allowStringToList = true,
   String separator = ',',
 }) {
+  if (value == null) return null;
   try {
-    if (value == null) {
-      return null;
-    } else {
-      return parseList(
-        value,
-        itemConverter: itemConverter,
-        orElse: orElse,
-        allowStringToList: allowStringToList,
-        separator: separator,
-      );
-    }
+    return parseList(
+      value,
+      itemConverter: itemConverter,
+      allowStringToList: allowStringToList,
+      separator: separator,
+    );
   } catch (e) {
     if (orElse != null) return orElse();
     return null;
@@ -139,9 +135,9 @@ bool? tryParseBool<T>(dynamic value, {bool Function()? orElse}) {
 List<T> parseList<T>(
   dynamic value, {
   T Function(dynamic)? itemConverter,
-  List<T> Function()? orElse,
   bool allowStringToList = true,
   String separator = ',',
+  List<T> Function()? orElse,
 }) {
   try {
     if (value == null) {
@@ -207,6 +203,35 @@ List<T> parseList<T>(
 ///
 /// If [raw] is `null`, returns `null`.
 /// If [raw] cannot be parsed, returns the result of [orElse] if provided, otherwise `null`.
+
+Map<String, dynamic>? tryParseMap(
+  dynamic value, {
+  Map<String, dynamic> Function()? orElse,
+}) {
+  if (value == null) return null;
+  try {
+    return parseMap(value);
+  } catch (e) {
+    if (orElse != null) return orElse();
+    return null;
+  }
+}
+
+Map<String, dynamic> parseMap(dynamic value,
+    {Map<String, dynamic> Function()? orElse}) {
+  try {
+    if (value is Map<String, dynamic>) return value;
+    if (value is String) {
+      return json.decode(value) as Map<String, dynamic>;
+    }
+    throw FormatException(
+        'Cannot parse ${value.runtimeType} to Map<String, dynamic>');
+  } catch (e) {
+    if (orElse != null) return orElse();
+    rethrow;
+  }
+}
+
 ///
 /// The [parser] parameter can be used to provide a custom parsing function for type [T].
 /// If [parser] is not provided, it attempts to parse based on common types:
@@ -251,15 +276,35 @@ T? tryParse<T>(
     } else if (T == num) {
       return tryParseNum(raw, orElse: orElse as num Function()?) as T?;
     } else if (T == String) {
-      return raw as T?;
+      return tryParseString(raw, orElse: orElse as String Function()?) as T?;
     } else if (T == Map) {
-      return raw as T?;
+      return tryParseMap(raw,
+          orElse: orElse as Map<String, dynamic> Function()?) as T?;
     }
 
     return raw as T?;
   } catch (e) {
+    return null;
+  }
+}
+
+String? tryParseString(dynamic value, {String Function()? orElse}) {
+  if (value == null) return null;
+  try {
+    return parseString(value);
+  } catch (e) {
     if (orElse != null) return orElse();
     return null;
+  }
+}
+
+String parseString(dynamic value, {String Function()? orElse}) {
+  try {
+    if (value is String) return value;
+    return value.toString();
+  } catch (e) {
+    if (orElse != null) return orElse();
+    rethrow;
   }
 }
 
@@ -268,7 +313,10 @@ bool parseBool<T>(dynamic value, {bool Function()? orElse}) {
     if (value is bool) {
       return value;
     } else if (value is String) {
-      return value.toLowerCase() == 'true';
+      final lowerCaseValue = value.toLowerCase();
+      if (lowerCaseValue == 'true') return true;
+      if (lowerCaseValue == 'false') return false;
+      throw FormatException('Cannot parse "$value" to bool');
     } else if (value is num) {
       return value == 1;
     } else {

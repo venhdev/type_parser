@@ -11,8 +11,6 @@
 # (the recommended set includes the core lints).
 # The core lints are also what is used by pub.dev for scoring packages.
 
-include: package:lints/recommended.yaml
-
 # Uncomment the following section to specify additional rules.
 
 # linter:
@@ -23,8 +21,18 @@ include: package:lints/recommended.yaml
 #   exclude:
 #     - path/to/excluded/files/**
 
-# For more information about the core and recommended set of lints, see
-# https://dart.dev/go/core-lints
+# For more information, see https://dart.dev/guides/language/analysis-options
 
-# For additional information about configuring this file, see
-# https://dart.dev/guides/language/analysis-options
+# TODO: Remove this section if you don't use lints.
+#       The lints package is an opinionated set of lint recommendations
+#       from the Dart team. Start with these and add/remove lint rules
+#       as necessary.
+include: package:lints/4.0.0/recommended.yaml
+
+# analyzer:
+#   exclude:
+#     - path/to/excluded/files
+#   language:
+#     strict-casts: true
+#     strict-inference: true
+#     strict-raw-types: true
