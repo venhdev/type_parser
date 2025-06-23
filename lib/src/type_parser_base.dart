@@ -64,6 +64,10 @@ double? tryParseDouble<T>(dynamic value, {double Function()? orElse}) {
   }
 }
 
+/// Parses a dynamic [value] into a [double].
+///
+/// Throws a [FormatException] if the value cannot be parsed to a [double].
+/// If [orElse] is provided, its result is returned instead of throwing an exception.
 double parseDouble<T>(dynamic value, {double Function()? orElse}) {
   try {
     if (value is double) {
@@ -98,6 +102,10 @@ int? tryParseInt<T>(dynamic value, {int Function()? orElse}) {
   }
 }
 
+/// Parses a dynamic [value] into an [int].
+///
+/// Throws a [FormatException] if the value cannot be parsed to an [int].
+/// If [orElse] is provided, its result is returned instead of throwing an exception.
 int parseInt<T>(dynamic value, {int Function()? orElse}) {
   try {
     if (value is int) {
@@ -204,28 +212,57 @@ List<T> parseList<T>(
 /// If [raw] is `null`, returns `null`.
 /// If [raw] cannot be parsed, returns the result of [orElse] if provided, otherwise `null`.
 
-Map<String, dynamic>? tryParseMap(
+Map<K, V>? tryParseMap<K, V>(
   dynamic value, {
-  Map<String, dynamic> Function()? orElse,
+  Map<K, V> Function()? orElse,
+  K Function(dynamic)? keyConverter,
+  V Function(dynamic)? valueConverter,
 }) {
   if (value == null) return null;
   try {
-    return parseMap(value);
+    return parseMap(value,
+        keyConverter: keyConverter, valueConverter: valueConverter);
   } catch (e) {
     if (orElse != null) return orElse();
     return null;
   }
 }
 
-Map<String, dynamic> parseMap(dynamic value,
-    {Map<String, dynamic> Function()? orElse}) {
+Map<K, V> parseMap<K, V>(
+  dynamic value, {
+  Map<K, V> Function()? orElse,
+  K Function(dynamic)? keyConverter,
+  V Function(dynamic)? valueConverter,
+}) {
   try {
-    if (value is Map<String, dynamic>) return value;
-    if (value is String) {
-      return json.decode(value) as Map<String, dynamic>;
+    if (value is Map) {
+      if (keyConverter == null && valueConverter == null) {
+        return value.cast<K, V>();
+      } else {
+        return value.map((key, value) {
+          final newKey = keyConverter != null ? keyConverter(key) : key;
+          final newValue =
+              valueConverter != null ? valueConverter(value) : value;
+          return MapEntry(newKey, newValue);
+        }).cast<K, V>();
+      }
+    } else if (value is String) {
+      final trimmed = value.trim();
+      if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+        final decoded = json.decode(trimmed) as Map;
+        if (keyConverter == null && valueConverter == null) {
+          return decoded.cast<K, V>();
+        } else {
+          return decoded.map((key, value) {
+            final newKey = keyConverter != null ? keyConverter(key) : key;
+            final newValue =
+                valueConverter != null ? valueConverter(value) : value;
+            return MapEntry(newKey, newValue);
+          }).cast<K, V>();
+        }
+      }
     }
-    throw FormatException(
-        'Cannot parse ${value.runtimeType} to Map<String, dynamic>');
+    throw FormatException('Cannot parse ${value.runtimeType} to Map<K, V>');
   } catch (e) {
     if (orElse != null) return orElse();
     rethrow;
@@ -308,7 +345,11 @@ String parseString(dynamic value, {String Function()? orElse}) {
   }
 }
 
-bool parseBool<T>(dynamic value, {bool Function()? orElse}) {
+/// Parses a dynamic [value] into a [bool].
+///
+/// Throws a [FormatException] if the value cannot be parsed to a [bool].
+/// If [orElse] is provided, its result is returned instead of throwing an exception.
+bool parseBool(dynamic value, {bool Function()? orElse}) {
   try {
     if (value is bool) {
       return value;

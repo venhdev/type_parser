@@ -1,6 +1,6 @@
 name: type_parser
-description: A powerful and flexible Dart package for parsing and converting dynamic values to various types, including primitives, lists, and maps. It provides both safe (tryParse) and explicit (parse) methods for robust type handling.
-version: 0.0.1
+description: A powerful Dart package for parsing and converting dynamic values to various types. Provides safe (tryParse) and explicit (parse) methods.
+version: 0.0.2
 homepage: https://github.com/venhdev/type_parser
 repository: https://github.com/venhdev/type_parser
 
