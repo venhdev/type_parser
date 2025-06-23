@@ -1,4 +1,4 @@
-## 1.0.0
+## 0.0.1
 
 - Initial release of the `type_parser` package.
 - Added `asType` and `tryType` extension methods for `dynamic`.

@@ -27,7 +27,7 @@
 #       The lints package is an opinionated set of lint recommendations
 #       from the Dart team. Start with these and add/remove lint rules
 #       as necessary.
-include: package:lints/4.0.0/recommended.yaml
+# include: package:lints/4.0.0/recommended.yaml
 
 # analyzer:
 #   exclude:
