@@ -1,12 +1,13 @@
 import 'dart:convert';
-import '../type_parser_base.dart';
+
+import '../core/parser_core.dart';
 
 /// Provides convenient extension methods on `Object?` for parsing dynamic values
 /// into various data types, including primitives, lists, and maps.
 ///
 /// This extension simplifies type conversion by offering both safe (`try*`) and
 /// explicit (`as*`) parsing methods.
-extension DynamicParsingExtension on Object? {
+extension DynamicParsingExtension on dynamic {
   /// Tries to parse the dynamic value as a [String].
   /// Returns `null` if parsing fails.
   String? tryString({String Function()? orElse}) {
